@@ -12,13 +12,19 @@ import pprint
 import time
 
 class PriceInfo:
-    def __init__(self, timestamp, price):
-        self.timestamp = timestamp
-        self.price    = price #JPY
+    def __init__(self, timestamp, price, exchange):
+        self.timestamp = timestamp # UTC
+        self.price    = price      # JPY
+        self.exchange = exchange   # 取引所
 
 class CryptoType(Enum):
     BTC = 0
     ETH = 1
+    
+class ExchangeType(Enum):
+    BITFLYER = 0
+    COINCHECK = 1
+    GMO = 2
 
 def fetch_price_from_bitflyer(crypto_type):
     '''
@@ -40,30 +46,14 @@ def fetch_price_from_bitflyer(crypto_type):
     price     = str(json_data["ltp"]).split(".")[0] # 小数点以下切り捨て
     return PriceInfo(timestamp, price)
 
+def fetch_price_from_coincheck(crypto_type):
+    pass
+
+def fetch_price_form_gmo(crypto_type):
+    pass
+
 if __name__=="__main__":
-    # 1秒ごとに価格を取得しファイルに出力
-    file_name = "data/price_" + str(time.time()).split(".")[0] + ".csv"
-    before_btc_price = -1
-    before_eth_price = -1
-    while True:
-        ofs = codecs.open(file_name, "a", "utf-8")
-        try:
-            btc_price_info = fetch_price_from_bitflyer(CryptoType.BTC)
-            eth_price_info = fetch_price_from_bitflyer(CryptoType.ETH)
-        except:
-            continue
-        if before_btc_price == -1 or before_eth_price == -1:
-            before_btc_price = btc_price_info.price
-            before_eth_price = eth_price_info.price
-            continue
-        diff_btc_price = str(int(btc_price_info.price) - int(before_btc_price))
-        diff_eth_price = str((int(eth_price_info.price) - int(before_eth_price)) * 50) # ethは差分が比較しやすいよう50倍にする
-        ofs.write(btc_price_info.timestamp+","+btc_price_info.price+","+eth_price_info.price+","+diff_btc_price+","+diff_eth_price+"\n")
-        print(btc_price_info.timestamp+","+btc_price_info.price+","+eth_price_info.price+","+diff_btc_price+","+diff_eth_price)
-        before_btc_price = btc_price_info.price
-        before_eth_price = eth_price_info.price
-        ofs.close()
-        time.sleep(2)
+    pass
         
 
     
