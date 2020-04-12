@@ -1,2 +1,5 @@
 # secret keys
 config/api_keys.json
+
+# generated data
+./sandbox/FetchPriceFromBitflyer/data/
