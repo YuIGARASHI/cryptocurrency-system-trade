@@ -11,11 +11,15 @@ import codecs
 import pprint
 import time
 
-class PriceInfo:
-    def __init__(self, timestamp, price, exchange):
-        self.timestamp = timestamp # UTC
-        self.price    = price      # JPY
-        self.exchange = exchange   # 取引所
+class TickerInfo:
+    def __init__(self, timestamp, price, exchange, best_bid, best_ask, best_bid_volume, best_ask_volume):
+        self.timestamp = timestamp             # UTC
+        self.price    = price                  # JPY
+        self.exchange = exchange               # 取引所
+        self.best_bid = best_bid               # 売り
+        self.best_ask = best_ask               # 買い
+        self.best_bid_volume = best_bid_volume # 売りの量
+        self.best_ask_volume = best_ask_volume # 買いの量
 
 class CryptoType(Enum):
     BTC = 0
@@ -41,8 +45,8 @@ class ExchangeHandler():
             print("error: Invalid exchange is specified!")
             sys.exit()
     
-    def fetch_price(self, crypto_type):
-        return self.impl.fetch_price(crypto_type)
+    def fetch_ticker(self, crypto_type):
+        return self.impl.fetch_ticker(crypto_type)
 
 class BitflyerHandler():
     '''
@@ -52,7 +56,7 @@ class BitflyerHandler():
     def __init__(self):
         pass
 
-    def fetch_price(self, crypto_type):
+    def fetch_ticker(self, crypto_type):
         '''
         現在時刻の指定された仮想通貨の価格を取得する.
         '''
@@ -70,7 +74,11 @@ class BitflyerHandler():
         
         timestamp = json_data["timestamp"].split(".")[0] # 秒の小数点以下切り捨て
         price     = str(json_data["ltp"]).split(".")[0]  # 小数点以下切り捨て
-        return PriceInfo(timestamp, price, ExchangeType.BITFLYER)
+        best_bid  = str(json_data["best_bid"]).split(".")[0]  # 小数点以下切り捨て
+        best_ask  = str(json_data["best_ask"]).split(".")[0]  # 小数点以下切り捨て
+        best_bid_size  = str(json_data["best_bid_size"]).split(".")[0]  # 小数点以下切り捨て
+        best_ask_size  = str(json_data["best_ask_size"]).split(".")[0]  # 小数点以下切り捨て
+        return TickerInfo(timestamp, price, ExchangeType.BITFLYER, best_bid, best_ask, best_bid_size, best_ask_size)
 
 class CoincheckHandler():
     '''
@@ -86,6 +94,6 @@ class GmoHandler():
 
 if __name__=="__main__":
     bitflyer_handler = ExchangeHandler(ExchangeType.BITFLYER)
-    price_info = bitflyer_handler.fetch_price(CryptoType.BTC)
-    print(price_info.timestamp, price_info.price, price_info.exchange)
+    ticker_info = bitflyer_handler.fetch_ticker(CryptoType.BTC)
+    print(ticker_info.timestamp, ticker_info.price, ticker_info.exchange, ticker_info.best_bid, ticker_info.best_ask, ticker_info.best_bid_volume, ticker_info.best_ask_volume)
     
