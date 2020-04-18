@@ -112,8 +112,8 @@ class ExchangeHandler:
 
         Returns:
         --------
-        error_code : FileAccessErrorCode
-            ファイルアクセスエラーコード。
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
         '''
         self.impl.cancel_expired_order()
 
