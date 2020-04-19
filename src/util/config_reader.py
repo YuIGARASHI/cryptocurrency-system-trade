@@ -4,11 +4,8 @@ from src.common.common import FileAccessErrorCode
 import json
 
 class ConfigReader:
-    def __init__(self):
-        pass
-
     @staticmethod
-    def GetUseCryptoTypes(config_path):
+    def get_use_crypto_types():
         '''
         アービトラージで用いる仮想通貨種別一覧を取得する。
 
@@ -25,7 +22,7 @@ class ConfigReader:
             使用する仮想通貨種別一覧。
         '''
         try:
-            json_open = open(config_path, 'r')
+            json_open = open("../config/config.json", 'r')
             json_load = json.load(json_open)
             crypto_type_list = []
             for crypto_name in json_load["use_cryptocurrency"]:
@@ -43,7 +40,7 @@ class ConfigReader:
 
 
     @staticmethod
-    def GetUseExchangeTypes(config_path):
+    def get_use_exchange_types():
         '''
         アービトラージで用いる取引所一覧を取得する。
 
@@ -60,7 +57,7 @@ class ConfigReader:
             使用する取引所一覧。
         '''
         try:
-            json_open = open(config_path, 'r')
+            json_open = open("../config/config.json", 'r')
             json_load = json.load(json_open)
             exchange_type_list = []
             for exchange_name in json_load["use_exchange"]:
