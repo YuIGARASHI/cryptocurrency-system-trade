@@ -39,7 +39,7 @@ class WebAPIErrorCode(Enum):
     WebAPIエラーコード。
     '''
     OK = 0,              # 呼び出し成功
-    CONNECTION_ERROR = 1  # 通信失敗
+    FAIL_CONNECTION = 1  # 通信失敗
 
 
 class FileAccessErrorCode(Enum):
