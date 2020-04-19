@@ -48,10 +48,16 @@ class BitflyerHandler:
     def load_api_key(self):
         return FileAccessErrorCode.OK  # todo: 実装する
 
-    def make_bid_order(self, crypto_type, price, volume, timeout):
+    def make_bid_limit_order(self, crypto_type, price, volume, timeout):
         return WebAPIErrorCode.OK  # todo: 実装する
 
-    def make_ask_order(self, crypto_type, price, volume, timeout):
+    def make_ask_limit_order(self, crypto_type, price, volume, timeout):
+        return WebAPIErrorCode.OK  # todo: 実装する
+
+    def make_bid_market_order(self, crypto_type, volume, timeout):
+        return WebAPIErrorCode.OK  # todo: 実装する
+
+    def make_ask_market_order(self, crypto_type, volume, timeout):
         return WebAPIErrorCode.OK  # todo: 実装する
 
     def cancel_expired_order(self):

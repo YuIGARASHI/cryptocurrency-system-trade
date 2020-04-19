@@ -60,10 +60,9 @@ class ExchangeHandler:
         '''
         self.impl.load_api_key()
 
-    def make_ask_order(self, crypto_type, price, volume, timeout):
+    def make_ask_limit_order(self, crypto_type, price, volume, timeout):
         '''
-        売り注文を出す。
-        price > 0 であれば指値注文、price <= 0 であれば成り行き注文を出す。
+        指値注文（買い）を出す。
 
         Parameters:
         -----------
@@ -82,12 +81,11 @@ class ExchangeHandler:
         error_code : WebAPIErrorCode
             WebAPIエラーコード。
         '''
-        self.impl.make_bid_order(crypto_type, price, volume, timeout)
+        self.impl.make_ask_limit_order(crypto_type, price, volume, timeout)
 
-    def make_bid_order(self, crypto_type, price, volume, timeout):
+    def make_bid_limit_order(self, crypto_type, price, volume, timeout):
         '''
-        買い注文を出す。
-        price > 0 であれば指値注文、price <= 0 であれば成り行き注文を出す。
+        指値注文（売り）を出す。
 
         Parameters:
         -----------
@@ -106,7 +104,49 @@ class ExchangeHandler:
         error_code : WebAPIErrorCode
             WebAPIエラーコード。
         '''
-        self.impl.make_bid_order(crypto_type, price, volume, timeout)
+        self.impl.make_bid_limit_order(crypto_type, price, volume, timeout)
+
+    def make_ask_market_order(self, crypto_type, volume, timeout):
+        '''
+        成行注文（買い）を出す。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : int
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
+        self.impl.make_ask_market_order(crypto_type, volume, timeout)
+
+    def make_bid_market_order(self, crypto_type, volume, timeout):
+        '''
+        成行注文（売り）を出す。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : int
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
+        self.impl.make_bid_market_order(crypto_type, volume, timeout)
 
     def cancel_expired_order(self):
         '''
