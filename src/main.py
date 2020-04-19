@@ -11,7 +11,8 @@ import pprint
 if __name__=='__main__':
     print("info: システムトレードを開始します。")
 
-    error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.BITFLYER)
-    print(api_key, api_secret_key)
+    handler = ExchangeHandler(ExchangeType.BITFLYER)
+    handler.load_api_key()
+    print(handler.impl.api_key)
 
     print("info: システムトレードを終了します。")

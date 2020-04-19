@@ -4,6 +4,7 @@ from src.common.common import ExchangeType
 from src.common.common import WebAPIErrorCode
 from src.common.common import FileAccessErrorCode
 from src.common.common import BalanceInfo
+from src.util.api_key_reader import APIKeyReader
 import requests
 import sys
 
@@ -15,7 +16,8 @@ class BitflyerHandler:
     '''
 
     def __init__(self):
-        pass
+        self.api_key = ""
+        self.api_secret_key = ""
 
     @staticmethod
     def fetch_ticker_info(crypto_type):
@@ -46,7 +48,12 @@ class BitflyerHandler:
             return WebAPIErrorCode.FAIL_CONNECTION, TickerInfo()
 
     def load_api_key(self):
-        return FileAccessErrorCode.OK  # todo: 実装する
+        error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.BITFLYER)
+        if error_code != FileAccessErrorCode.OK:
+            return error_code
+        self.api_key = api_key
+        self.api_secret_key = api_secret_key
+        return FileAccessErrorCode.OK
 
     def make_bid_limit_order(self, crypto_type, price, volume, timeout):
         return WebAPIErrorCode.OK  # todo: 実装する
