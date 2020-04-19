@@ -1,0 +1,4 @@
+{
+    "use_exchange" : ["bitflyer", "coincheck"],
+    "use_cryptocurrency" : ["BTC"] 
+}
