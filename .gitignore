@@ -3,3 +3,9 @@ config/api_keys.json
 
 # generated data
 ./sandbox/FetchPriceFromBitflyer/data/
+
+# log file
+log
+
+# cache data
+__pycache__
