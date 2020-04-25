@@ -111,7 +111,7 @@ class CoincheckHandler:
             error_code, ticker_info = self.fetch_ticker_info(CryptoType.BTC)
             if error_code != WebAPIErrorCode.OK:
                 print("warn: Coincheckとの通信に失敗しました。")  # todo: エラーログに吐き出す。
-                WebAPIErrorCode.FAIL_CONNECTION
+                return WebAPIErrorCode.FAIL_CONNECTION
             market_buy_amount = int(ticker_info.best_sell_order * volume) + 500 # 100円分バッファ
             params["market_buy_amount"] = market_buy_amount
             if market_buy_amount > 50000:
