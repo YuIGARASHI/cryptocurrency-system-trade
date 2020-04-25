@@ -46,7 +46,10 @@ class WebAPIErrorCode(Enum):
     '''
     OK = 0,              # 呼び出し成功
     FAIL_CONNECTION = 1  # 通信失敗
+<<<<<<< HEAD
     FAIL_ORDER = 2       # 注文失敗
+=======
+>>>>>>> bc89fdefa1c224470f95540e0e7987d11a927b35
 
 
 class FileAccessErrorCode(Enum):
