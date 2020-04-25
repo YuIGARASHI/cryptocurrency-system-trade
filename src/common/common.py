@@ -13,14 +13,20 @@ class CryptoType(Enum):
     ETH = 2
 
 
-class BalanceInfo(Enum):
+class BalanceInfo:
     '''
     取引所の残高情報。
     '''
-    def __init__(self, YEN=0, BTC=0, ETH=0):
-        self.YEN = YEN
-        self.BTC = BTC
-        self.ETH = ETH
+    def __init__(self, yen=0, btc=0, eth=0):
+        self.YEN = yen
+        self.BTC = btc
+        self.ETH = eth
+
+    def print_myself(self):
+        print(">>>>>>>>>> BalanceInfo <<<<<<<<<<")
+        print("YEN: " + str(self.YEN))
+        print("BTC: " + str(self.BTC))
+        print("ETH: " + str(self.ETH))
 
 
 class ExchangeType(Enum):
@@ -39,7 +45,8 @@ class WebAPIErrorCode(Enum):
     WebAPIエラーコード。
     '''
     OK = 0,              # 呼び出し成功
-    CONNECTION_ERROR = 1  # 通信失敗
+    FAIL_CONNECTION = 1  # 通信失敗
+    FAIL_ORDER = 2       # 注文失敗
 
 
 class FileAccessErrorCode(Enum):
@@ -51,35 +58,45 @@ class FileAccessErrorCode(Enum):
     FAIL_READ = 2,  # ファイル読み込み失敗
     FAIL_WRITE = 3  # ファイル書き出し失敗
 
+class OrderType(Enum):
+    '''
+    注文の売買種別。
+    '''
+    INVALID = 0  # 無効値
+    BUY = 1,     # 売り
+    SELL = 2     # 買い
 
 class TickerInfo:
-    def __init__(self, crypto_type=CryptoType.INVALID, timestamp="", price=-1, exchange=ExchangeType.INVALID,
-                 best_bid=-1, best_ask=-1, best_bid_volume=-1, best_ask_volume=-1):
+    def __init__(self, crypto_type=CryptoType.INVALID, exchange=ExchangeType.INVALID,
+                 best_sell_order=-1, best_buy_order=-1, best_sell_order_volume=-1, best_buy_order_volume=-1):
         '''
         Parameters:
         -----------
         crypto_type : CryptoType
             仮想通貨種別。
-        timestamp : string
-            UTCタイムスタンプ。
-        price : int
-            仮想通貨価格。[円]
         exchange : ExchangeType
             取引所種別。
-        best_bid : int
-            売り注文の最安値。[円]
-        best_ask : int
-            買い注文の最高値。[円]
-        best_bid_volume : int
-            最安の売り注文の数量。単位は仮想通貨による。
-        best_ask_volume : int
-            最高の買い注文の数量。単位は仮想通貨による。
+        best_sell_order : float
+            現在板に出ている売り注文の最安値。[円]
+        best_buy_order : float
+            現在板に出ている買い注文の最高値。[円]
+        best_sell_order_volume : float
+            現在板に出ている最安の売り注文の数量。単位は仮想通貨による。
+        best_buy_order_volume : float
+            現在板に出ている最高の買い注文の数量。単位は仮想通貨による。
         '''
         self.crypto_type = crypto_type
-        self.timestamp = timestamp
-        self.price = price
         self.exchange = exchange
-        self.best_bid = best_bid
-        self.best_ask = best_ask
-        self.best_bid_volume = best_bid_volume
-        self.best_ask_volume = best_ask_volume
+        self.best_sell_order = best_sell_order
+        self.best_buy_order = best_buy_order
+        self.best_sell_order_volume = best_sell_order_volume
+        self.best_buy_order_volume = best_buy_order_volume
+
+    def print_myself(self):
+        print(">>>>>>>>>> TickerInfo <<<<<<<<<<")
+        print("crypt_type: " + str(self.crypto_type))
+        print("exchange: " + str(self.exchange))
+        print("best_sell_order: " +str(self.best_sell_order))
+        print("best_buy_order: " + str(self.best_buy_order))
+        print("best_sell_order_volume: " + str(self.best_sell_order_volume))
+        print("best_buy_order_volume: " + str(self.best_buy_order_volume))
