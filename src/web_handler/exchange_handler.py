@@ -2,6 +2,7 @@ from src.common.common import CryptoType, TickerInfo, ExchangeType
 from src.web_handler.bitflyer_handler import BitflyerHandler
 from src.web_handler.coincheck_handler import CoincheckHandler
 from src.web_handler.gmo_handler import GmoHandler
+from src.web_handler.zaif_handler import ZaifHandler
 import sys
 
 
@@ -26,6 +27,8 @@ class ExchangeHandler:
             self.impl = CoincheckHandler()
         elif exchange_type == ExchangeType.GMO:
             self.impl = GmoHandler()
+        elif exchange_type == ExchangeType.ZAIF:
+            self.impl = ZaifHandler()
         else:
             print("error: 無効なExchangeTypeが指定されています。プログラムを停止します。")  # todo:エラーログに吐き出す
             sys.exit()

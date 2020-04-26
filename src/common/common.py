@@ -38,6 +38,7 @@ class ExchangeType(Enum):
     BITFLYER = 1
     COINCHECK = 2
     GMO = 3
+    ZAIF = 4
 
 
 class WebAPIErrorCode(Enum):
