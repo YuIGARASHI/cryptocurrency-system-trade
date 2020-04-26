@@ -39,6 +39,7 @@ class ExchangeType(Enum):
     COINCHECK = 2
     GMO = 3
     ZAIF = 4
+    LIQUID = 5
 
 
 class WebAPIErrorCode(Enum):
