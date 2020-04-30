@@ -4,6 +4,7 @@ from src.web_handler.coincheck_handler import CoincheckHandler
 from src.web_handler.gmo_handler import GmoHandler
 from src.web_handler.zaif_handler import ZaifHandler
 from src.web_handler.liquid_handler import LiquidHandler
+from src.web_handler.bitbank_handler import BitbankHandler
 import sys
 
 
@@ -32,6 +33,8 @@ class ExchangeHandler:
             self.impl = ZaifHandler()
         elif exchange_type == ExchangeType.LIQUID:
             self.impl = LiquidHandler()
+        elif exchange_type == ExchangeType.BITBANK:
+            self.impl = BitbankHandler()
         else:
             print("error: 無効なExchangeTypeが指定されています。プログラムを停止します。")  # todo:エラーログに吐き出す
             sys.exit()
