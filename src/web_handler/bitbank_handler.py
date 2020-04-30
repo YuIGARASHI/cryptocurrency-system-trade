@@ -32,7 +32,6 @@ class BitbankHandler:
     def fetch_ticker_info(self, crypto_type):
         '''
         板情報オブジェクトを取得する。
-        想定していない仮想通貨が指定された場合はプログラムを停止する。
 
         Parameters:
         -----------
@@ -123,4 +122,14 @@ class BitbankHandler:
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
+        '''
+        取引所に預けている残高を取得する。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        balance_info : BalanceInfo
+            残高情報。
+        '''
         return WebAPIErrorCode.OK, BalanceInfo()

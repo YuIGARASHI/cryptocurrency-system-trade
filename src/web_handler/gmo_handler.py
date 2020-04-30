@@ -28,6 +28,21 @@ class GmoHandler:
         self.api_public_endpoint = "https://api.coin.z.com/public"
 
     def fetch_ticker_info(self, crypto_type):
+        '''
+        板情報オブジェクトを取得する。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨の種類。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+        　WebAPIエラーコード。
+        ticker_info : TickerInfo
+        　板情報オブジェクト。
+        '''
         path = "/v1/orderbooks"
         url = self.api_public_endpoint + path
         params = {}
@@ -55,6 +70,15 @@ class GmoHandler:
         return WebAPIErrorCode.OK, ticker_info
 
     def load_api_key(self):
+        '''
+        API Key, Secret keyをロードする。
+        注文を扱うメソッドを呼ぶ前には本メソッドを実行する必要がある。
+
+        Returns:
+        --------
+        error_code : FileAccessErrorCode
+            ファイルアクセスエラーコード。
+        '''
         error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.GMO)
         if error_code != FileAccessErrorCode.OK:
             return error_code

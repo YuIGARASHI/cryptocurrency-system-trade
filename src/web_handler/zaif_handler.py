@@ -66,13 +66,68 @@ class ZaifHandler:
         return WebAPIErrorCode.OK, ticker_info
 
     def load_api_key(self):
+        '''
+        API Key, Secret keyをロードする。
+        注文を扱うメソッドを呼ぶ前には本メソッドを実行する必要がある。
+
+        Returns:
+        --------
+        error_code : FileAccessErrorCode
+            ファイルアクセスエラーコード。
+        '''
         return FileAccessErrorCode.OK
 
     def make_buy_market_order(self, crypto_type, volume):
+        '''
+        成行注文（買い）を出す。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : float
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
         return WebAPIErrorCode.OK
 
     def make_sell_market_order(self, crypto_type, volume):
+        '''
+        成行注文（売り）を出す。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : float
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
-        pass
+        '''
+        取引所に預けている残高を取得する。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        balance_info : BalanceInfo
+            残高情報。
+        '''
+        return self.impl.fetch_balance()

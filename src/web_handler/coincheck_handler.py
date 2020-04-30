@@ -62,6 +62,15 @@ class CoincheckHandler:
         return WebAPIErrorCode.OK, ticker_info
 
     def load_api_key(self):
+        '''
+        API Key, Secret keyをロードする。
+        注文を扱うメソッドを呼ぶ前には本メソッドを実行する必要がある。
+
+        Returns:
+        --------
+        error_code : FileAccessErrorCode
+            ファイルアクセスエラーコード。
+        '''
         error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.COINCHECK)
         if error_code != FileAccessErrorCode.OK:
             return error_code
@@ -160,6 +169,16 @@ class CoincheckHandler:
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
+        '''
+        取引所に預けている残高を取得する。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        balance_info : BalanceInfo
+            残高情報。
+        '''
         path = "/api/accounts/balance"
         timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
         url = self.api_endpoint + path
