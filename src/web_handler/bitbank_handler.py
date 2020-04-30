@@ -26,7 +26,7 @@ class BitbankHandler:
             CryptoType.ETH: "eth_jpy",
             CryptoType.BCH: "bcc_jpy",
             CryptoType.XRP: "xrp_jpy",
-            CryptoType.LTC: "ltc_btc"
+            CryptoType.LTC: "ltc_jpy"
         }
 
     def fetch_ticker_info(self, crypto_type):
