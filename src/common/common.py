@@ -9,8 +9,11 @@ class CryptoType(Enum):
     仮想通貨種別。
     '''
     INVALID = 0
-    BTC = 1
-    ETH = 2
+    BTC = 1  # Bitcoin
+    ETH = 2  # Ethereum
+    BCH = 3  # Bitcoin Cash
+    XRP = 4  # Ripple
+    LTC = 5  # Light Coin
 
 
 class BalanceInfo:
@@ -40,6 +43,8 @@ class ExchangeType(Enum):
     GMO = 3
     ZAIF = 4
     LIQUID = 5
+    BITBANK = 6
+    HUOBI_JP = 7
 
 
 class WebAPIErrorCode(Enum):
