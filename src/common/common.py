@@ -47,6 +47,7 @@ class WebAPIErrorCode(Enum):
     OK = 0,              # 呼び出し成功
     FAIL_CONNECTION = 1  # 通信失敗
     FAIL_ORDER = 2       # 注文失敗
+    SYS_ERROR = 3        # システムエラー
 
 
 class FileAccessErrorCode(Enum):

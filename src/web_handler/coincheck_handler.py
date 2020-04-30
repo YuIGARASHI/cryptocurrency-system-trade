@@ -23,11 +23,27 @@ class CoincheckHandler:
         self.api_endpoint = "https://coincheck.com"
 
     def fetch_ticker_info(self, crypto_type):
+        '''
+        板情報オブジェクトを取得する。
+        想定していない仮想通貨が指定された場合はプログラムを停止する。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨の種類。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+        　WebAPIエラーコード。
+        ticker_info : TickerInfo
+        　板情報オブジェクト。
+        '''
         path = "/api/order_books"
         url =  self.api_endpoint + path
         if crypto_type != CryptoType.BTC:
             print("error: Coincheckでは現在BTCのみ扱っています。プログラムを停止します。")  # todo:エラーログを吐き出す。
-            sys.exit()
+            return WebAPIErrorCode.SYS_ERROR, TickerInfo()
 
         try:
             json_data = requests.get(url, timeout=(self.connect_timeout, self.read_timeout)).json()
