@@ -122,16 +122,5 @@ class BitbankHandler:
         '''
         return WebAPIErrorCode.OK
 
-    def cancel_expired_order(self):
-        '''
-        期限切れの注文をキャンセルする。
-
-        Returns:
-        --------
-        error_code : WebAPIErrorCode
-            WebAPIエラーコード。
-        '''
-        WebAPIErrorCode.OK
-
     def fetch_balance(self):
         return WebAPIErrorCode.OK, BalanceInfo()

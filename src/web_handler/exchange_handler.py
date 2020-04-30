@@ -115,17 +115,6 @@ class ExchangeHandler:
         '''
         return self.impl.make_sell_market_order(crypto_type, volume)
 
-    def cancel_expired_order(self):
-        '''
-        期限切れの注文をキャンセルする。
-
-        Returns:
-        --------
-        error_code : WebAPIErrorCode
-            WebAPIエラーコード。
-        '''
-        return self.impl.cancel_expired_order()
-
     def fetch_balance(self):
         '''
         取引所に預けている残高を取得する。

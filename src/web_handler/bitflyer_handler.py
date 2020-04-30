@@ -59,9 +59,6 @@ class BitflyerHandler:
     def make_sell_market_order(self, crypto_type, volume):
         return WebAPIErrorCode.OK  # todo: 実装する
 
-    def cancel_expired_order(self):
-        return FileAccessErrorCode.OK  # todo: 実装する
-
     def fetch_balance(self):
         '''
         このへんが参考になりそう。

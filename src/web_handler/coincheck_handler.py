@@ -159,10 +159,6 @@ class CoincheckHandler:
               + str(volume) + " です。")
         return WebAPIErrorCode.OK
 
-
-    def cancel_expired_order(self):
-        return FileAccessErrorCode.OK  # todo: 実装する
-
     def fetch_balance(self):
         path = "/api/accounts/balance"
         timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))

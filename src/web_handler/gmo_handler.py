@@ -140,9 +140,6 @@ class GmoHandler:
         print("info: GMOへの注文に成功しました。売買種別は " + side + ", 数量は " + str(volume) + " です。")
         return WebAPIErrorCode.OK
 
-    def cancel_expired_order(self):
-        return FileAccessErrorCode.OK  # todo: 実装する
-
     def fetch_balance(self):
         '''
         取引所に預けている残高を取得する。

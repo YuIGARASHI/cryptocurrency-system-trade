@@ -72,8 +72,5 @@ class LiquidHandler:
     def make_sell_market_order(self, crypto_type, volume):
         return WebAPIErrorCode.OK
 
-    def cancel_expired_order(self):
-        return WebAPIErrorCode.OK
-
     def fetch_balance(self):
         return WebAPIErrorCode.OK, BalanceInfo()

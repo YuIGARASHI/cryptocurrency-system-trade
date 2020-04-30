@@ -74,8 +74,5 @@ class ZaifHandler:
     def make_sell_market_order(self, crypto_type, volume):
         return WebAPIErrorCode.OK
 
-    def cancel_expired_order(self):
-        pass
-
     def fetch_balance(self):
         pass
