@@ -2,7 +2,8 @@
 config/api_keys.json
 
 # generated data
-./sandbox/FetchPriceFromBitflyer/data/
+sandbox/FetchPriceFromBitflyer/data/
+sandbox/SimulateArbitrage/data/
 
 # log file
 log
