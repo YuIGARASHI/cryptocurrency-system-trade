@@ -14,6 +14,8 @@ class ZaifHandler:
     '''
     ZaifのAPIラッパークラス。
     https://zaif-api-document.readthedocs.io/ja/latest/index.html
+
+    XRP, LTCに対応していないため注意。
     '''
     def __init__(self):
         self.api_key = ""
@@ -21,6 +23,11 @@ class ZaifHandler:
         self.connect_timeout = 3.0 # サーバとのコネクトタイムアウト
         self.read_timeout = 10.0   # サーバからの読み込みタイムアウト
         self.api_endpoint = "https://api.zaif.jp/api/1"
+        self.crypto_map = {
+            CryptoType.BTC: "btc_jpy",
+            CryptoType.ETH: "eth_jpy",
+            CryptoType.BCH: "bch_jpy",
+        }
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -39,13 +46,10 @@ class ZaifHandler:
         ticker_info : TickerInfo
         　板情報オブジェクト。
         '''
-        if crypto_type == CryptoType.BTC:
-            path = "/depth/btc_jpy"
-        elif crypto_type == CryptoType.ETH:
-            path = "/depth/eth_jpy"
-        else:
-            print("error: CryptoTypeの指定が正しくありません。")
+        if not self.crypto_map.get(crypto_type):
+            print("error: " + str(crypto_type) + "はZaifで取り扱っていません。")
             return WebAPIErrorCode.SYS_ERROR, TickerInfo()
+        path = "/depth/" + self.crypto_map[crypto_type]
 
         url = self.api_endpoint + path
         try:
