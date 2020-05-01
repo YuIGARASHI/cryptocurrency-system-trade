@@ -21,6 +21,22 @@ class BitflyerHandler:
         self.api_endpoint = 'https://api.bitflyer.com'
 
     def fetch_ticker_info(self, crypto_type):
+        '''
+        板情報オブジェクトを取得する。
+        想定していない仮想通貨が指定された場合はプログラムを停止する。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨の種類。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+        　WebAPIエラーコード。
+        ticker_info : TickerInfo
+        　板情報オブジェクト。
+        '''
         path = '/v1/ticker'
         url = self.api_endpoint + path
         params = {}
@@ -46,6 +62,15 @@ class BitflyerHandler:
         return WebAPIErrorCode.OK, ticker_info
 
     def load_api_key(self):
+        '''
+        API Key, Secret keyをロードする。
+        注文を扱うメソッドを呼ぶ前には本メソッドを実行する必要がある。
+
+        Returns:
+        --------
+        error_code : FileAccessErrorCode
+            ファイルアクセスエラーコード。
+        '''
         error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.BITFLYER)
         if error_code != FileAccessErrorCode.OK:
             return error_code
@@ -54,18 +79,57 @@ class BitflyerHandler:
         return FileAccessErrorCode.OK
 
     def make_buy_market_order(self, crypto_type, volume):
+        '''
+        成行注文（買い）を出す。
+
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : float
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
         return WebAPIErrorCode.OK  # todo: 実装する
 
     def make_sell_market_order(self, crypto_type, volume):
-        return WebAPIErrorCode.OK  # todo: 実装する
+        '''
+        成行注文（売り）を出す。
 
-    def cancel_expired_order(self):
-        return FileAccessErrorCode.OK  # todo: 実装する
+        Parameters:
+        -----------
+        crypto_type : CryptoType
+            仮想通貨種別。
+        volume : float
+            数量。単位は仮想通貨による。
+        timeout : int
+            注文をキャンセルするまでの時間。[秒]
+            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        '''
+        return WebAPIErrorCode.OK  # todo: 実装する
 
     def fetch_balance(self):
         '''
-        このへんが参考になりそう。
-        https://www.doraxdora.com/blog/2018/03/14/4181/
+        取引所に預けている残高を取得する。
+
+        Returns:
+        --------
+        error_code : WebAPIErrorCode
+            WebAPIエラーコード。
+        balance_info : BalanceInfo
+            残高情報。
         '''
         return WebAPIErrorCode.OK, BalanceInfo()  # todo: 実装する
 
