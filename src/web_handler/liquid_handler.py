@@ -15,6 +15,7 @@ class LiquidHandler:
     https://developers.liquid.com/#introduction
 
     API呼び出しのLimitは300回/5分。
+    LiquidではLTCを扱っていないため注意。
     '''
 
     def __init__(self):
@@ -25,7 +26,9 @@ class LiquidHandler:
         self.api_endpoint = "https://api.liquid.com"
         self.ids = {
             CryptoType.BTC: 5,
-            CryptoType.ETH: 29
+            CryptoType.ETH: 29,
+            CryptoType.BCH: 41,
+            CryptoType.XRP: 83
         }
 
     def fetch_ticker_info(self, crypto_type):
@@ -45,6 +48,9 @@ class LiquidHandler:
         ticker_info : TickerInfo
         　板情報オブジェクト。
         '''
+        if not self.ids.get(crypto_type):
+            print("warn: " + str(crypto_type) + " はLiquidで扱っていません。")
+            return WebAPIErrorCode.SYS_ERROR, TickerInfo()
         path = "/products/" + str(self.ids[crypto_type]) + "/price_levels"
         url = self.api_endpoint + path
         try:

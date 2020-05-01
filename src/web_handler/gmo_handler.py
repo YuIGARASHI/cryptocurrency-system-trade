@@ -26,6 +26,13 @@ class GmoHandler:
         self.read_timeout = 10.0   # サーバからの読み込みタイムアウト
         self.api_private_endpoint = "https://api.coin.z.com/private"
         self.api_public_endpoint = "https://api.coin.z.com/public"
+        self.crypto_map = {
+            CryptoType.BTC: "BTC",
+            CryptoType.ETH: "ETH",
+            CryptoType.BCH: "BCH",
+            CryptoType.XRP: "XRP",
+            CryptoType.LTC: "LTC"
+        }
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -46,13 +53,7 @@ class GmoHandler:
         path = "/v1/orderbooks"
         url = self.api_public_endpoint + path
         params = {}
-        if crypto_type == CryptoType.BTC:
-            params["symbol"] = "BTC"
-        elif crypto_type == CryptoType.ETH:
-            params["symbol"] = "ETH"
-        else:
-            print("error: 無効なCryptoTypeが指定されています。プログラムを停止します。")  # todo: エラーログに吐き出す。
-            sys.exit()
+        params["symbol"] = self.crypto_map[crypto_type]
 
         try:
             json_data = requests.get(url, params=params, timeout=(self.connect_timeout, self.read_timeout)).json()
