@@ -1,5 +1,4 @@
 import unittest
-from src.common.common import *
 from src.util.config_reader import *
 
 class ConfigReaderTest(unittest.TestCase):
@@ -92,6 +91,7 @@ class ConfigReaderTest(unittest.TestCase):
         '''
         code, exchange_list = ConfigReader.get_use_exchange_types("config/config_test4.json")
         self.assertEqual(code, FileAccessErrorCode.FAIL_OPEN)
+
 
 if __name__=="__main__":
     unittest.main()
