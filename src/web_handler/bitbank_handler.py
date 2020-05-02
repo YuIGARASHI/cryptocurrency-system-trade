@@ -23,10 +23,8 @@ class BitbankHandler:
         self.api_endpoint = "https://public.bitbank.cc"
         self.crypto_map = {
             CryptoType.BTC: "btc_jpy",
-            CryptoType.ETH: "eth_jpy",
             CryptoType.BCH: "bcc_jpy",
             CryptoType.XRP: "xrp_jpy",
-            CryptoType.LTC: "ltc_jpy"
         }
 
     def fetch_ticker_info(self, crypto_type):
@@ -52,7 +50,7 @@ class BitbankHandler:
             print("warn: Bitbankとの通信に失敗しました。")
             return WebAPIErrorCode.FAIL_CONNECTION, TickerInfo()
         if json_data["success"] != 1:
-            print("error: Bitbankとの通信でエラーが発生しました。エラーコードは " + json_data["data"]["code"] + " です。")
+            print("error: Bitbankとの通信でエラーが発生しました。エラーコードは " + str(json_data["data"]["code"]) + " です。")
             return WebAPIErrorCode.SYS_ERROR, TickerInfo()
         best_order_index = 0
         price_index = 0
