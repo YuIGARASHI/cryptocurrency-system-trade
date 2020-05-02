@@ -34,12 +34,12 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
         handler_map[exchange] = ExchangeHandler(exchange)
     # 見出し出力
     headline_str = ""
-    aleady_print_flag = {}
+    already_print_flag = {}
     for (ex1, ex2) in permutations(exchanges, 2):
-        if aleady_print_flag.get((ex1, ex2)):
+        if already_print_flag.get((ex1, ex2)):
             continue
-        headline_str += exchange_name_map[ex1] + "_"+exchange_name_map[ex2] + ","
-        headline_str += exchange_name_map[ex2] + "_" + exchange_name_map[ex1] + ","
+        headline_str += exchange_name_map[ex2] + "_"+exchange_name_map[ex1] + ","
+        headline_str += exchange_name_map[ex1] + "_" + exchange_name_map[ex2] + ","
         already_print_flag[(ex1, ex2)] = True
         already_print_flag[(ex2, ex1)] = True
     print(headline_str)
@@ -64,8 +64,8 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
             # 10万円当たりの利益に変換
             line_str += str(math.floor((buy_map[ex1] - sell_map[ex2]) * (100000 / sell_map[ex2])))+","
             line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]) * (100000 / sell_map[ex2]))) + ","
-            aleady_print_flag[(ex1, ex2)] = True
-            aleady_print_flag[(ex2, ex1)] = True
+            already_print_flag[(ex1, ex2)] = True
+            already_print_flag[(ex2, ex1)] = True
         print(line_str)
         ofs.write(line_str+"\n")
         ofs.flush()
