@@ -1,0 +1,30 @@
+{
+    "bitflyer" : {
+        "api_key" : "bitflyer_api_key",
+        "api_secret_key" : "bitflyer_secret_key"
+    },
+    "coincheck" : {
+        "api_key" : "coincheck_api_key",
+        "api_secret_key" : "coincheck_secret_key"
+    },
+    "gmo" : {
+        "api_key" : "gmo_api_key",
+        "api_secret_key" : "gmo_secret_key"
+    },
+    "zaif": {
+        "api_key": "zaif_api_key",
+        "api_secret_key": "zaif_secret_key"
+    },
+    "liquid": {
+        "api_key": "liquid_api_key",
+        "api_secret_key": "liquid_secret_key"
+    },
+    "bitbank": {
+        "api_key": "bitbank_api_key",
+        "api_secret_key": "bitbank_secret_key"
+    },
+    "huobi": {
+        "api_key": "huobi_api_key",
+        "api_secret_key": "huobi_secret_key"
+    }
+}
