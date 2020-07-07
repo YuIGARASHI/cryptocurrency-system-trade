@@ -8,6 +8,7 @@ import time
 import json
 import requests
 from datetime import datetime
+import jwt
 
 class LiquidHandler:
     '''
@@ -30,6 +31,7 @@ class LiquidHandler:
             CryptoType.BCH: 41,
             CryptoType.XRP: 83
         }
+        self.balance = None
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -79,32 +81,22 @@ class LiquidHandler:
         error_code : FileAccessErrorCode
             ファイルアクセスエラーコード。
         '''
+        error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.LIQUID)
+        if error_code != FileAccessErrorCode.OK:
+            return error_code
+        self.api_key = api_key
+        self.api_secret_key = api_secret_key
         return FileAccessErrorCode.OK
 
     def make_buy_market_order(self, crypto_type, volume):
-        '''
-        成行注文（買い）を出す。
-
-        Parameters:
-        -----------
-        crypto_type : CryptoType
-            仮想通貨種別。
-        volume : float
-            数量。単位は仮想通貨による。
-        timeout : int
-            注文をキャンセルするまでの時間。[秒]
-            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
-
-        Returns:
-        --------
-        error_code : WebAPIErrorCode
-            WebAPIエラーコード。
-        '''
-        return WebAPIErrorCode.OK
+        return self.__make_market_order(crypto_type, volume, OrderType.BUY)
 
     def make_sell_market_order(self, crypto_type, volume):
+        return self.__make_market_order(crypto_type, volume, OrderType.SELL)
+
+    def __make_market_order(self, crypto_type, volume, order_type):
         '''
-        成行注文（売り）を出す。
+        成行注文を出す。
 
         Parameters:
         -----------
@@ -112,15 +104,55 @@ class LiquidHandler:
             仮想通貨種別。
         volume : float
             数量。単位は仮想通貨による。
-        timeout : int
-            注文をキャンセルするまでの時間。[秒]
-            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+        order_type : OrderType
+            売買種別。
 
         Returns:
         --------
         error_code : WebAPIErrorCode
             WebAPIエラーコード。
         '''
+        order_type_dict = {
+            OrderType.BUY: "buy",
+            OrderType.SELL: "sell"
+        }
+        if not self.ids.get(crypto_type):
+            print("error: 無効な仮想通貨種別が指定されています。")
+            return WebAPIErrorCode.SYS_ERROR
+
+        params = {
+            "order": {
+                "order_type": "market",
+                "product_id": self.ids[crypto_type],
+                "side": order_type_dict[order_type],
+                "quantity": volume
+            }
+        }
+        timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        path = "/orders"
+        url = self.api_endpoint + path;
+        auth_payload = {
+            "path": path,
+            "nonce": timestamp,
+            "token_id": self.api_key
+        }
+        signature = jwt.encode(payload=auth_payload, key=self.api_secret_key, algorithm='HS256')
+        headers = {
+            'X-Quoine-API-Version': '2',
+            'X-Quoine-Auth': signature,
+            'Content-Type': 'application/json'
+        }
+        try:
+            json_data = requests.post(url, data=json.dumps(params), headers=headers).json()
+        except:
+            print("warn: Liquidとの通信に失敗しました。")
+            return WebAPIErrorCode.FAIL_CONNECTION
+        if not json_data.get("id"):
+            print("warn: Liquidへの注文に失敗しました。Jsonをダンプします。")
+            print(json_data)
+            return WebAPIErrorCode.FAIL_ORDER
+        print("info: Liquidへの注文に成功しました。売買種別は " + str(order_type) + ", 数量は " + str(volume) + " です。")
+        self.balance = None
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
@@ -134,4 +166,36 @@ class LiquidHandler:
         balance_info : BalanceInfo
             残高情報。
         '''
-        return WebAPIErrorCode.OK, BalanceInfo()
+        if self.balance:
+            return WebAPIErrorCode.OK, self.balance
+
+        timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        path = "/accounts/balance"
+        url = self.api_endpoint + path
+        auth_payload = {
+            "path": path,
+            "nonce": timestamp,
+            "token_id": self.api_key
+        }
+        signature = jwt.encode(payload=auth_payload, key=self.api_secret_key, algorithm='HS256')
+        headers = {
+            'X-Quoine-API-Version': '2',
+            'X-Quoine-Auth': signature,
+            'Content-Type': 'application/json'
+        }
+
+        try:
+            json_data = requests.get(url, data={}, headers=headers).json()
+        except:
+            print("warn: Liquidとの通信に失敗しました。")
+            return WebAPIErrorCode.FAIL_CONNECTION
+        jpy_index = 0
+        eth_index = 1
+        btc_index = 2
+        jpy = float(json_data[jpy_index]["balance"])
+        eth = float(json_data[eth_index]["balance"])
+        btc = float(json_data[btc_index]["balance"])
+        balance_info = BalanceInfo(jpy, btc, eth)
+        self.balance = balance_info
+
+        return WebAPIErrorCode.OK, balance_info

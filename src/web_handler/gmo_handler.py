@@ -33,6 +33,7 @@ class GmoHandler:
             CryptoType.XRP: "XRP",
             CryptoType.LTC: "LTC"
         }
+        self.balance = None
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -60,6 +61,10 @@ class GmoHandler:
         except:
             print("warn: GMOとの通信に失敗しました。")  # todo: エラーログに吐き出す。
             return WebAPIErrorCode.FAIL_CONNECTION, TickerInfo()
+        if json_data["status"] != 0:
+            print("warn: GMOとの通信に失敗しました。メッセージは下記の通りです。")
+            print(json_data)
+            return WebAPIErrorCode.SYS_ERROR, TickerInfo()
 
         best_order_index = 0
         best_sell_order = float(json_data["data"]["asks"][best_order_index]["price"])
@@ -130,11 +135,6 @@ class GmoHandler:
             print("error: 無効なOrderTypeが指定されています。プログラムを停止します。")  # todo: エラーログに吐き出す。
             sys.exit()
 
-        if volume > 0.02:
-            print("error: 注文の数量が大きすぎます。プログラムを停止します。") # todo: エラーログを吐き出す。
-            sys.exit()
-        volume -= volume % 0.0001  # 0.0001未満切り捨て
-
         timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
         method = 'POST'
         path = '/v1/order'
@@ -159,10 +159,12 @@ class GmoHandler:
             print("warn: GMOとの通信に失敗しました。")  # todo: エラーログに吐き出す。
             return WebAPIErrorCode.FAIL_CONNECTION
         if json_data["status"] != 0:
-            print("warn: GMOへの売買注文に失敗しました。ステータスコードは " + str(json_data["status"]) + " です。")
+            print("warn: GMOへの売買注文に失敗しました。メッセージは下記の取りです。")
+            print(json_data)
             return WebAPIErrorCode.FAIL_ORDER
 
         print("info: GMOへの注文に成功しました。売買種別は " + side + ", 数量は " + str(volume) + " です。")
+        self.balance = None
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
@@ -176,6 +178,8 @@ class GmoHandler:
         balance_info : BalanceInfo
             残高情報。
         '''
+        if self.balance:
+            return WebAPIErrorCode.OK, self.balance
 
         timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
         method = 'GET'
@@ -194,15 +198,22 @@ class GmoHandler:
         except:
             print("warn: GMOとの通信に失敗しました。")  # todo: エラーログに吐き出す。
             return WebAPIErrorCode.FAIL_CONNECTION, BalanceInfo()
+        if not json_data.get("data"):
+            print("warn: GMOからの価格取得に失敗しました。メッセージは下記の通りです。")
+            print(json_data["messages"])
+            return WebAPIErrorCode.FAIL_CONNECTION, BalanceInfo()
 
         balance_data_list = json_data["data"]
         for balance_data in balance_data_list:
             if balance_data["symbol"] == "JPY":
-                yen_balance = balance_data["amount"]
+                yen_balance = float(balance_data["amount"])
             elif balance_data["symbol"] == "BTC":
-                btc_balance = balance_data["amount"]
+                btc_balance = float(balance_data["amount"])
             elif balance_data["symbol"] =="ETH":
-                eth_balance = balance_data["amount"]
+                eth_balance = float(balance_data["amount"])
             else:
                 continue
-        return WebAPIErrorCode.OK, BalanceInfo(yen_balance, btc_balance, eth_balance)
+        balance_info = BalanceInfo(yen_balance, btc_balance, eth_balance)
+        self.balance = balance_info
+
+        return WebAPIErrorCode.OK, balance_info

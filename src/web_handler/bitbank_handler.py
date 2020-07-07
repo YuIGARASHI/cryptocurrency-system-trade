@@ -20,12 +20,14 @@ class BitbankHandler:
         self.api_secret_key = ""
         self.connect_timeout = 3.0 # サーバとのコネクトタイムアウト
         self.read_timeout = 10.0   # サーバからの読み込みタイムアウト
-        self.api_endpoint = "https://public.bitbank.cc"
+        self.public_api_endpoint = "https://public.bitbank.cc"
+        self.private_api_endpoint = "https://api.bitbank.cc"
         self.crypto_map = {
             CryptoType.BTC: "btc_jpy",
             CryptoType.BCH: "bcc_jpy",
             CryptoType.XRP: "xrp_jpy",
         }
+        self.balance = None
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -43,7 +45,7 @@ class BitbankHandler:
         ticker_info : TickerInfo
         　板情報オブジェクト。
         '''
-        url = self.api_endpoint + "/" + self.crypto_map[crypto_type] + "/depth"
+        url = self.public_api_endpoint + "/" + self.crypto_map[crypto_type] + "/depth"
         try:
             json_data = requests.get(url, timeout=(self.connect_timeout, self.read_timeout)).json()
         except:
@@ -75,32 +77,22 @@ class BitbankHandler:
         error_code : FileAccessErrorCode
             ファイルアクセスエラーコード。
         '''
+        error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.BITBANK)
+        if error_code != FileAccessErrorCode.OK:
+            return error_code
+        self.api_key = api_key
+        self.api_secret_key = api_secret_key
         return FileAccessErrorCode.OK
 
     def make_buy_market_order(self, crypto_type, volume):
-        '''
-        成行注文（買い）を出す。
-
-        Parameters:
-        -----------
-        crypto_type : CryptoType
-            仮想通貨種別。
-        volume : float
-            数量。単位は仮想通貨による。
-        timeout : int
-            注文をキャンセルするまでの時間。[秒]
-            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
-
-        Returns:
-        --------
-        error_code : WebAPIErrorCode
-            WebAPIエラーコード。
-        '''
-        return WebAPIErrorCode.OK
+        return self.__make_market_order(crypto_type, volume, OrderType.BUY)
 
     def make_sell_market_order(self, crypto_type, volume):
+        return self.__make_market_order(crypto_type, volume, OrderType.SELL)
+
+    def __make_market_order(self, crypto_type, volume, order_type):
         '''
-        成行注文（売り）を出す。
+        成行注文を出す。
 
         Parameters:
         -----------
@@ -108,15 +100,52 @@ class BitbankHandler:
             仮想通貨種別。
         volume : float
             数量。単位は仮想通貨による。
-        timeout : int
-            注文をキャンセルするまでの時間。[秒]
-            この時間内に約定しなかった場合は cancel_expired_order が呼ばれた時点でキャンセルされる。
+        order_type : OrderType
+            売買種別。
 
         Returns:
         --------
         error_code : WebAPIErrorCode
             WebAPIエラーコード。
         '''
+        if crypto_type != CryptoType.BTC:
+            print("error: 現在BTC以外の売買はサポートしていません。")
+            return WebAPIErrorCode.FAIL_ORDER
+
+        timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        path = "/v1/user/spot/order"
+        url = self.private_api_endpoint + path
+        buy_sell_dict = {
+            OrderType.BUY: "buy",
+            OrderType.SELL: "sell"
+        }
+        params = {
+            "pair": self.crypto_map[crypto_type],
+            "amount": volume,
+            "side": buy_sell_dict[order_type],
+            "type": "market"
+        }
+        text = timestamp + json.dumps(params)
+        sign = hmac.new(bytes(self.api_secret_key.encode('ascii')), bytes(text.encode('ascii')),
+                        hashlib.sha256).hexdigest()
+        headers = {
+            'Content-Type': 'application/json',
+            "ACCESS-KEY": self.api_key,
+            "ACCESS-NONCE": timestamp,
+            "ACCESS-SIGNATURE": sign
+        }
+
+        try:
+            json_data = requests.post(url, data=json.dumps(params), headers=headers).json()
+        except:
+            print("warn: Bitbankとの通信に失敗しました。")
+            return WebAPIErrorCode.FAIL_CONNECTION
+        if json_data["success"] != 1:
+            print("warn: Bitbankへの売買注文に失敗しました。ステータスコードは下記です。")
+            print(str(json_data["data"]["code"]))
+            return WebAPIErrorCode.FAIL_ORDER
+        print("info: Bitbankへの注文に成功しました。売買種別は " + str(order_type) + ", 数量は " + str(volume) + " です。")
+        self.balance = None
         return WebAPIErrorCode.OK
 
     def fetch_balance(self):
@@ -130,4 +159,36 @@ class BitbankHandler:
         balance_info : BalanceInfo
             残高情報。
         '''
-        return WebAPIErrorCode.OK, BalanceInfo()
+        if self.balance:
+            return WebAPIErrorCode.OK, self.balance
+        timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        path = "/v1/user/assets"
+        url = self.private_api_endpoint + path
+        text = timestamp + path
+        sign = hmac.new(bytes(self.api_secret_key.encode('ascii')), bytes(text.encode('ascii')), hashlib.sha256).\
+            hexdigest()
+        headers = {
+            "ACCESS-KEY": self.api_key,
+            "ACCESS-NONCE": timestamp,
+            "ACCESS-SIGNATURE": sign
+        }
+        try:
+            json_data = requests.get(url, data={}, headers=headers).json()
+        except:
+            print("warn: Bitbankとの通信に失敗しました。")
+            return WebAPIErrorCode.FAIL_CONNECTION, BalanceInfo()
+        if json_data["success"] != 1:
+            print("warn: Bitbankからの残高取得に失敗しました。ステータスコードは以下です。")
+            print(str(json_data["data"]["code"]))
+            return WebAPIErrorCode.FAIL_CONNECTION, BalanceInfo()
+        for asset in json_data["data"]["assets"]:
+            if asset["asset"] == "jpy":
+                jpy_balance = float(asset["free_amount"])
+            elif asset["asset"] == "btc":
+                btc_balance = float(asset["free_amount"])
+            elif asset["asset"] == "eth":
+                eth_balance = float(asset["free_amount"])
+        balance_info = BalanceInfo(jpy_balance, btc_balance, eth_balance)
+        self.balance = balance_info
+
+        return WebAPIErrorCode.OK, balance_info
