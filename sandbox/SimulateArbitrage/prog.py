@@ -11,6 +11,7 @@ import time
 import codecs
 from itertools import permutations
 import math
+from binance.client import Client
 
 exchange_name_map = {
     ExchangeType.LIQUID: "LQ",
@@ -18,7 +19,8 @@ exchange_name_map = {
     ExchangeType.GMO: "GMO",
     ExchangeType.BITBANK: "BB",
     ExchangeType.ZAIF: "ZA",
-    ExchangeType.COINCHECK: "CC"
+    ExchangeType.COINCHECK: "CC",
+    ExchangeType.BITFLYER: "FLY"
 }
 crypto_name_map = {
     CryptoType.BTC: "BTC",
@@ -61,9 +63,11 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
         for (ex1, ex2) in permutations(exchanges, 2):
             if already_print_flag.get((ex1, ex2)):
                 continue
-            # 10万円当たりの利益に変換
-            line_str += str(math.floor((buy_map[ex1] - sell_map[ex2]) * (100000 / sell_map[ex2])))+","
-            line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]) * (100000 / sell_map[ex2]))) + ","
+            # # 10万円当たりの利益に変換
+            # line_str += str(math.floor((buy_map[ex1] - sell_map[ex2]) * (100000 / sell_map[ex2])))+","
+            # line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]) * (100000 / sell_map[ex2]))) + ","
+            line_str += str(math.floor((buy_map[ex1] - sell_map[ex2])))+","
+            line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]))) + ","
             already_print_flag[(ex1, ex2)] = True
             already_print_flag[(ex2, ex1)] = True
         print(line_str)
@@ -78,8 +82,33 @@ if __name__=='__main__':
         ExchangeType.GMO,
         ExchangeType.HUOBI_JP,
         ExchangeType.LIQUID,
-        ExchangeType.COINCHECK
+        ExchangeType.COINCHECK,
+        ExchangeType.BITFLYER
     ]
     crypto_type = CryptoType.BTC
-    ofs = codecs.open("data/result_" + crypto_name_map[crypto_type] + ".csv", "w")
-    similate_arbitrage(crypto_type, exchanges, ofs)
+    # ofs = codecs.open("data/result_" + crypto_name_map[crypto_type] + ".csv", "w")
+    # similate_arbitrage(crypto_type, exchanges, ofs)
+
+
+    # ここから、取引所間のBTC価格変動タイミング差分調査
+    ofs = codecs.open("data/result_variation_2_" + crypto_name_map[crypto_type] + ".csv", "w")
+    head_str = ""
+    for exchange in exchanges:
+        head_str += exchange_name_map[exchange] + ","
+    ofs.write(head_str+"\n")
+    print(head_str)
+    ofs.flush()
+
+    while True:
+        line_str = ""
+        for exchange in exchanges:
+            handler = ExchangeHandler(exchange)
+            code, info = handler.fetch_ticker_info(crypto_type)
+            if code != WebAPIErrorCode.OK:
+                time.sleep(1)
+                continue
+            line_str += str(info.best_buy_order) + ","
+        ofs.write(line_str+"\n")
+        ofs.flush()
+        print(line_str)
+        time.sleep(1)

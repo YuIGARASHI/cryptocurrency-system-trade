@@ -11,6 +11,6 @@ import time
 import codecs
 
 if __name__=='__main__':
-    handler = ExchangeHandler(ExchangeType.HUOBI_JP)
-    code, info = handler.fetch_ticker_info(CryptoType.LTC)
-    info.print_myself()
+    handler = ExchangeHandler(ExchangeType.ZAIF)
+    handler.load_api_key()
+    handler.fetch_balance()

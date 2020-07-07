@@ -7,7 +7,10 @@ import hashlib
 import time
 import json
 import requests
+import urllib.parse
 from datetime import datetime
+from urllib.parse import urlencode
+from zaifapi import *
 
 
 class ZaifHandler:
@@ -23,11 +26,13 @@ class ZaifHandler:
         self.connect_timeout = 3.0 # サーバとのコネクトタイムアウト
         self.read_timeout = 10.0   # サーバからの読み込みタイムアウト
         self.api_endpoint = "https://api.zaif.jp/api/1"
+        self.api_private_endpoint = "https://api.zaif.jp/tapi"
         self.crypto_map = {
             CryptoType.BTC: "btc_jpy",
             CryptoType.ETH: "eth_jpy",
             CryptoType.BCH: "bch_jpy",
         }
+        self.balance = None
 
     def fetch_ticker_info(self, crypto_type):
         '''
@@ -79,6 +84,11 @@ class ZaifHandler:
         error_code : FileAccessErrorCode
             ファイルアクセスエラーコード。
         '''
+        error_code, api_key, api_secret_key = APIKeyReader.get_api_keys(ExchangeType.ZAIF)
+        if error_code != FileAccessErrorCode.OK:
+            return error_code
+        self.api_key = api_key
+        self.api_secret_key = api_secret_key
         return FileAccessErrorCode.OK
 
     def make_buy_market_order(self, crypto_type, volume):
@@ -134,4 +144,29 @@ class ZaifHandler:
         balance_info : BalanceInfo
             残高情報。
         '''
-        return self.impl.fetch_balance()
+        if self.balance:
+            return WebAPIErrorCode.OK, self.balance
+
+        zaif = ZaifTradeApi(self.api_key, self.api_secret_key)
+        print(zaif.get_info2())
+
+        # timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
+        # params = {
+        #     "nonce": timestamp,
+        #     "method": "get_info2",
+        # }
+        # print(params)
+        # signature = hmac.new(self.api_secret_key.encode('ascii'), urlencode(params), hashlib.sha512).hexdigest()
+        # headers = {
+        #     "key": self.api_key,
+        #     "sign": signature
+        # }
+        #
+        # try:
+        #     json_data = requests.post(self.api_private_endpoint, headers=headers, data="").json()
+        # except:
+        #     print("warn: Zaif との通信に失敗しました。")
+        #     return WebAPIErrorCode.FAIL_CONNECTION
+        # if json_data["success"] != 1:
+        #     print("warn: Zaifからの価格取得に失敗しました。メッセージは下記の通りです。")
+        #     print(json_data)

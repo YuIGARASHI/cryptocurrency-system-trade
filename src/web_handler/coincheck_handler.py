@@ -195,6 +195,10 @@ class CoincheckHandler:
         except:
             print("warn: Coincheckとの通信に失敗しました。")  # todo: エラーログに吐き出す。
             return WebAPIErrorCode.FAIL_CONNECTION, TickerInfo()
+        if json_data["success"] == False:
+            print("warn: Coincheckからの残高取得に失敗しました。")
+            print("エラーメッセージは " + json_data["error"] + " です。")
+            return WebAPIErrorCode.FAIL_CONNECTION
 
         jpy = json_data["jpy"]
         btc = json_data["btc"]

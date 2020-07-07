@@ -40,8 +40,25 @@ class APIKeyReader:
 
         file = None
         try:
-            file = open(file_path, 'r')
-            json_load = json.load(file)
+            json_open = open("../config/api_keys.json", 'r')
+            json_load = json.load(json_open)
+            key_object = None
+            if exchange_type == ExchangeType.BITFLYER:
+                key_object = json_load["bitflyer"]
+            elif exchange_type == ExchangeType.COINCHECK:
+                key_object = json_load["coincheck"]
+            elif exchange_type == ExchangeType.GMO:
+                key_object = json_load["gmo"]
+            elif exchange_type == ExchangeType.LIQUID:
+                key_object = json_load["liquid"]
+            elif exchange_type == ExchangeType.BITBANK:
+                key_object = json_load["bitbank"]
+            elif exchange_type == ExchangeType.ZAIF:
+                key_object  = json_load["zaif"]
+            else:
+                print("warn: 無効な仮想通貨名が指定されています。")  # todo: エラーログに吐き出す。
+                return FileAccessErrorCode.FAIL_READ, "", ""
+            return FileAccessErrorCode.OK, key_object["api_key"], key_object["api_secret_key"]
         except:
             print("warn: コンフィグファイルのオープンに失敗しました。")  # todo: エラーログに吐き出す。
             return FileAccessErrorCode.FAIL_OPEN, "", ""
