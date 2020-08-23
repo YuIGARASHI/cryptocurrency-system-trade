@@ -1,0 +1,4 @@
+{
+    "use_exchange" : ["gmo", "bitflyer", "zaif","liquid"],
+    "use_cryptocurrency" : ["BTC", "BCH"] 
+}
