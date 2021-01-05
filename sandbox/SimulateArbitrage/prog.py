@@ -1,6 +1,8 @@
 '''
 システムトレードのエントリポイント。
 '''
+import sys
+sys.path.append('../../')
 
 from src.common.common import CryptoType, TickerInfo, ExchangeType, WebAPIErrorCode
 from src.web_handler.exchange_handler import ExchangeHandler
@@ -12,6 +14,7 @@ import codecs
 from itertools import permutations
 import math
 from binance.client import Client
+import datetime
 
 exchange_name_map = {
     ExchangeType.LIQUID: "LQ",
@@ -35,7 +38,7 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
     for exchange in exchanges:
         handler_map[exchange] = ExchangeHandler(exchange)
     # 見出し出力
-    headline_str = ""
+    headline_str = "time,"
     already_print_flag = {}
     for (ex1, ex2) in permutations(exchanges, 2):
         if already_print_flag.get((ex1, ex2)):
@@ -51,6 +54,7 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
         sell_map = {}
         buy_map = {}
         line_str = ""
+        line_str += datetime.datetime.now().strftime('%m月%d日 %H:%M:%S') + ","
         already_print_flag = {}
         for exchange in exchanges:
             code, info = handler_map[exchange].fetch_ticker_info(crypto_type)
@@ -64,10 +68,10 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
             if already_print_flag.get((ex1, ex2)):
                 continue
             # # 10万円当たりの利益に変換
-            # line_str += str(math.floor((buy_map[ex1] - sell_map[ex2]) * (100000 / sell_map[ex2])))+","
-            # line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]) * (100000 / sell_map[ex2]))) + ","
-            line_str += str(math.floor((buy_map[ex1] - sell_map[ex2])))+","
-            line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]))) + ","
+            line_str += str(math.floor((buy_map[ex1] - sell_map[ex2]) * (100000 / sell_map[ex2])))+","
+            line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]) * (100000 / sell_map[ex2]))) + ","
+            # line_str += str(math.floor((buy_map[ex1] - sell_map[ex2])))+","
+            # line_str += str(math.floor((buy_map[ex2] - sell_map[ex1]))) + ","
             already_print_flag[(ex1, ex2)] = True
             already_print_flag[(ex2, ex1)] = True
         print(line_str)
@@ -76,39 +80,42 @@ def similate_arbitrage(crypto_type, exchanges, ofs):
         time.sleep(2)
 
 if __name__=='__main__':
+    # exchanges = [
+    #     ExchangeType.ZAIF,
+    #     ExchangeType.BITBANK,
+    #     ExchangeType.GMO,
+    #     ExchangeType.HUOBI_JP,
+    #     ExchangeType.LIQUID,
+    #     ExchangeType.COINCHECK,
+    #     ExchangeType.BITFLYER
+    # ]
     exchanges = [
-        ExchangeType.ZAIF,
-        ExchangeType.BITBANK,
         ExchangeType.GMO,
-        ExchangeType.HUOBI_JP,
-        ExchangeType.LIQUID,
-        ExchangeType.COINCHECK,
-        ExchangeType.BITFLYER
+        ExchangeType.LIQUID
     ]
     crypto_type = CryptoType.BTC
-    # ofs = codecs.open("data/result_" + crypto_name_map[crypto_type] + ".csv", "w")
-    # similate_arbitrage(crypto_type, exchanges, ofs)
-
+    ofs = codecs.open("data/result_" + crypto_name_map[crypto_type] + ".csv", "w")
+    similate_arbitrage(crypto_type, exchanges, ofs)
 
     # ここから、取引所間のBTC価格変動タイミング差分調査
-    ofs = codecs.open("data/result_variation_2_" + crypto_name_map[crypto_type] + ".csv", "w")
-    head_str = ""
-    for exchange in exchanges:
-        head_str += exchange_name_map[exchange] + ","
-    ofs.write(head_str+"\n")
-    print(head_str)
-    ofs.flush()
-
-    while True:
-        line_str = ""
-        for exchange in exchanges:
-            handler = ExchangeHandler(exchange)
-            code, info = handler.fetch_ticker_info(crypto_type)
-            if code != WebAPIErrorCode.OK:
-                time.sleep(1)
-                continue
-            line_str += str(info.best_buy_order) + ","
-        ofs.write(line_str+"\n")
-        ofs.flush()
-        print(line_str)
-        time.sleep(1)
+    # ofs = codecs.open("data/result_variation_2_" + crypto_name_map[crypto_type] + ".csv", "w")
+    # head_str = ""
+    # for exchange in exchanges:
+    #     head_str += exchange_name_map[exchange] + ","
+    # ofs.write(head_str+"\n")
+    # print(head_str)
+    # ofs.flush()
+    #
+    # while True:
+    #     line_str = ""
+    #     for exchange in exchanges:
+    #         handler = ExchangeHandler(exchange)
+    #         code, info = handler.fetch_ticker_info(crypto_type)
+    #         if code != WebAPIErrorCode.OK:
+    #             time.sleep(1)
+    #             continue
+    #         line_str += str(info.best_buy_order) + ","
+    #     ofs.write(line_str+"\n")
+    #     ofs.flush()
+    #     print(line_str)
+    #     time.sleep(1)
