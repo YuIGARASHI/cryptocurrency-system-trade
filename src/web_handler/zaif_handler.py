@@ -10,7 +10,7 @@ import requests
 import urllib.parse
 from datetime import datetime
 from urllib.parse import urlencode
-from zaifapi import *
+from zaifapi import ZaifTradeApi
 
 
 class ZaifHandler:
@@ -148,25 +148,14 @@ class ZaifHandler:
             return WebAPIErrorCode.OK, self.balance
 
         zaif = ZaifTradeApi(self.api_key, self.api_secret_key)
-        print(zaif.get_info2())
-
-        # timestamp = '{0}000'.format(int(time.mktime(datetime.now().timetuple())))
-        # params = {
-        #     "nonce": timestamp,
-        #     "method": "get_info2",
-        # }
-        # print(params)
-        # signature = hmac.new(self.api_secret_key.encode('ascii'), urlencode(params), hashlib.sha512).hexdigest()
-        # headers = {
-        #     "key": self.api_key,
-        #     "sign": signature
-        # }
-        #
-        # try:
-        #     json_data = requests.post(self.api_private_endpoint, headers=headers, data="").json()
-        # except:
-        #     print("warn: Zaif との通信に失敗しました。")
-        #     return WebAPIErrorCode.FAIL_CONNECTION
-        # if json_data["success"] != 1:
-        #     print("warn: Zaifからの価格取得に失敗しました。メッセージは下記の通りです。")
-        #     print(json_data)
+        try:
+            json_data = zaif.get_info2()
+        except:
+            print("warn: Zaifとの通信に失敗しました。")
+            return WebAPIErrorCode.FAIL_CONNECTION, BalanceInfo()
+        yen_balance = int(json_data["funds"]["jpy"])
+        btc_balance = int(json_data["funds"]["btc"])
+        # zaifではethを扱っていない？
+        balance_info = BalanceInfo(yen_balance, btc_balance, -1)
+        self.balance = balance_info
+        return WebAPIErrorCode.OK, balance_info

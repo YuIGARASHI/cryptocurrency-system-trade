@@ -54,7 +54,7 @@ class APIKeyReader:
             elif exchange_type == ExchangeType.BITBANK:
                 key_object = json_load["bitbank"]
             elif exchange_type == ExchangeType.ZAIF:
-                key_object  = json_load["zaif"]
+                key_object = json_load["zaif"]
             else:
                 print("warn: 無効な仮想通貨名が指定されています。")  # todo: エラーログに吐き出す。
                 return FileAccessErrorCode.FAIL_READ, "", ""
