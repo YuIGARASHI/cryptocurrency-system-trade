@@ -1,4 +1,0 @@
-{
-    "use_exchange" : ["gmo", "coincheck", "bitflyer", "zaiff", "huobi", "bitbank", "liquid"],
-    "use_cryptocurrency" : ["hoge", "ETH", "BCH", "XRP", "LTC"] 
-}
